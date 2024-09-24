@@ -5,6 +5,7 @@ import me.rejomy.actions.config.impl.Config;
 import me.rejomy.actions.listener.DynamicEventListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+// TODO: Add /config reload command.
 @Getter
 public enum ActionsAPI {
     INSTANCE;
