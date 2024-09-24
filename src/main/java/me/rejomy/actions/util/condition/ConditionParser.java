@@ -34,6 +34,7 @@ public class ConditionParser {
             boolean equals = expression.equals("=") || expression.equals("==");
             boolean containsIgnoreCase = expression.contains("=~");
             boolean instanceofEx = expression.contains("instanceof");
+            boolean permission = expression.contains("permission");
 
             // Validate expression
             if (large && small) {
@@ -43,7 +44,7 @@ public class ConditionParser {
                 return null;
             }
 
-            if (expression.length() > 2 && !instanceofEx) {
+            if (expression.length() > 2 && !instanceofEx && !permission) {
                 Logger.error(String.format(
                         "Condition %s contains too big size %s, you can use only one or two characters.",
                         condition, expression.length()));
@@ -53,6 +54,8 @@ public class ConditionParser {
 
             if (instanceofEx) {
                 expressions.add(new ExpressionInstanceof());
+            } else if (permission) {
+                expressions.add(new ExpressionPermission());
             } else {
                 if (large) {
                     expressions.add(new ExpressionLarge());

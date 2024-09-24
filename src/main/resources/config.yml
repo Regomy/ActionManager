@@ -14,6 +14,7 @@ container:
 # = equals
 # != not equals
 # instanceof like java
+# permission check if player has some permission, use like "{getPlayer} or {getEntity} permission your.permission"
 # > large than, < small than : you can use <= and >=
 # $ here will take value from container, for example 3 != $b
 # %placeholder% Use placeholder conditions only in events with getEntity instanceof Player.
