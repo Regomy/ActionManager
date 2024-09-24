@@ -1,0 +1,50 @@
+# You are welcome to the ActionManager! v1.0
+
+# Section where you can contain number, string and arrays.
+container:
+  allowed-worlds:
+    - skypvp
+  b: 5
+
+# Here you can write condition with link to the condition, same with lambda in java.
+# There is three parts, 1 condition 2 expression 3 condition, for example: 3 != 3,
+#   result will be false and expression with this condition dont run.
+# (!) Do space after every part.
+# =~ contains with ignore case.
+# = equals
+# != not equals
+# instanceof like java
+# > large than, < small than : you can use <= and >=
+# $ here will take value from container, for example 3 != $b
+# %placeholder% Use placeholder conditions only in events with getEntity instanceof Player.
+# [] - get class with path.
+# {} take method or field from event class.
+condition:
+  # Condition name, for $condition_name
+  allowed-worlds:
+    # Expression, you can write unlimited expressions and use this in action.
+    - "{getEntity()#getWorld()#getName()} =~ $allowed-worlds"
+  is-player:
+    - "{getEntity()} instanceof [org.bukkit.entity.Player]"
+
+# Here we can create our sentences and actions for this sentences.
+# $killer - only for events where there is damager#getName
+# $player - only for events where there is getEntity()#getName
+action:
+  # Reward killer when player is died
+  - activator:
+      - playerdeathevent
+    condition:
+      - "$is-player"
+      - "$allowed-worlds"
+    command:
+      - "give $player 322:0 1"
+      - "bc $player is died"
+
+  # Anti void
+  - activator:
+      - playermoveevent
+    condition:
+      - "{to#y} < 0"
+    command:
+      - "tp $player %world% %x% %y% %z%"

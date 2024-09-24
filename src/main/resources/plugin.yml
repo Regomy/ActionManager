@@ -1,0 +1,9 @@
+name: Actions
+version: 1.0
+
+softdepend:
+  - PlaceholderAPI
+
+main: me.rejomy.actions.Actions
+
+api-version: 1.13
