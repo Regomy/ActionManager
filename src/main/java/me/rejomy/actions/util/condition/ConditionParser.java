@@ -82,6 +82,14 @@ public class ConditionParser {
     }
 
     ConditionData.ConditionPart validatePart(String string) {
+        boolean forTarget = false;
+
+        // If string starts with target, we set to condition target run.
+        if (string.startsWith("target")) {
+            string = string.substring(string.indexOf("target") + 1);
+            forTarget = true;
+        }
+
         // Try to find value in container
         if (string.startsWith("$")) {
             Object valueFromContainer = ActionsAPI.INSTANCE.getConfig().getContainers()
@@ -91,29 +99,29 @@ public class ConditionParser {
                 Logger.error("Cant find value calls " + string);
             }
 
-            return new ConditionData.ConditionPart(ConditionData.ConditionType.CONTAINER,
+            return new ConditionData.ConditionPart(ConditionData.ConditionType.CONTAINER, forTarget,
                     valueFromContainer == null? string : valueFromContainer);
         }
 
         // Check if this is placeholder
         if (PAPIHook.enable && string.startsWith("%") && string.endsWith("%")) {
-            return new ConditionData.ConditionPart(ConditionData.ConditionType.PLACEHOLDER, string);
+            return new ConditionData.ConditionPart(ConditionData.ConditionType.PLACEHOLDER, forTarget, string);
         }
 
         // Check if this is reflection invoke task
         if (string.startsWith("{") && string.endsWith("}")) {
             // Remove indicators
             string = string.substring(1, string.length() - 1);
-            return new ConditionData.ConditionPart(ConditionData.ConditionType.INVOKE, string);
+            return new ConditionData.ConditionPart(ConditionData.ConditionType.INVOKE, forTarget, string);
         }
 
         // Check if this is reflection class task
         if (string.startsWith("[") && string.endsWith("]")) {
             // Remove indicators
             string = string.substring(1, string.length() - 1);
-            return new ConditionData.ConditionPart(ConditionData.ConditionType.CLASS, string);
+            return new ConditionData.ConditionPart(ConditionData.ConditionType.CLASS, forTarget, string);
         }
 
-        return new ConditionData.ConditionPart(ConditionData.ConditionType.NOTHING, string);
+        return new ConditionData.ConditionPart(ConditionData.ConditionType.NOTHING, forTarget, string);
     }
 }

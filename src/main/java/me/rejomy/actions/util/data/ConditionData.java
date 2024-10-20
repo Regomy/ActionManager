@@ -16,6 +16,8 @@ public class ConditionData {
     @AllArgsConstructor
     public static class ConditionPart {
         ConditionType conditionType;
+        // Should we try use this condition for target or for event.
+        boolean forTarget;
 
         Object object;
     }

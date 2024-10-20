@@ -2,6 +2,7 @@ package me.rejomy.actions.util;
 
 import lombok.experimental.UtilityClass;
 import me.rejomy.actions.ActionsAPI;
+import me.rejomy.actions.util.command.Command;
 import me.rejomy.actions.util.condition.ConditionParser;
 import me.rejomy.actions.util.data.ActionData;
 import me.rejomy.actions.util.data.ConditionData;
@@ -10,6 +11,7 @@ import org.bukkit.event.Event;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class ActionFiller {
@@ -25,6 +27,8 @@ public class ActionFiller {
 
         // Do color for commands
         commands.replaceAll(ColorUtil::apply);
+
+        List<Command> parsedCommands = parseCommands(commands);
 
         // Validate lists
         if (activators.isEmpty()) {
@@ -49,7 +53,7 @@ public class ActionFiller {
         }
         //
 
-        return new ActionData(activators, conditions, commands);
+        return new ActionData(activators, conditions, parsedCommands);
     }
 
     /**
@@ -81,6 +85,10 @@ public class ActionFiller {
         }
 
         return conditions;
+    }
+
+    public List<Command> parseCommands(List<String> textCommands) {
+        return textCommands.stream().map(Command::new).toList();
     }
 
     public List<Class<? extends Event>> getEventsFromActivator(List<String> activators) {

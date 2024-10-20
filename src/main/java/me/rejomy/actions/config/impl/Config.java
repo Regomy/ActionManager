@@ -14,6 +14,7 @@ import java.util.*;
 
 @Getter
 public class Config extends YamlConfig {
+
     HashMap<String, Object> containers = new HashMap<>();
     // In condition there is sections, in section there is a list of conditions.
     HashMap<String, List<ConditionData>> conditions = new HashMap<>();
@@ -45,7 +46,6 @@ public class Config extends YamlConfig {
         for (ActionData action : actions) {
             for (Class<? extends org.bukkit.event.Event> event : action.activators()) {
                 actionsByEvent.computeIfAbsent(event, e -> new ArrayList<>()).add(action);
-                System.out.println("add " + event.getName());
             }
         }
     }

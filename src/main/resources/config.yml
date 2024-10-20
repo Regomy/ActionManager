@@ -20,17 +20,28 @@ container:
 # %placeholder% Use placeholder conditions only in events with getEntity instanceof Player.
 # [] - get class with path.
 # {} take method or field from event class.
+# if you want to run this command for target like in command, set target before run some expression.
 condition:
   # Condition name, for $condition_name
   allowed-worlds:
     # Expression, you can write unlimited expressions and use this in action.
     - "{getEntity()#getWorld()#getName()} =~ $allowed-worlds"
+  # Condition name, for $condition_name
+  allowed-worlds-for-target:
+    # Expression, you can write unlimited expressions and use this in action.
+    - "target{getWorld()#getName()} =~ $allowed-worlds"
+  permission:
+    # Expression, you can write unlimited expressions and use this in action.
+    - "target permission msg"
   is-player:
     - "{getEntity()} instanceof [org.bukkit.entity.Player]"
 
 # Here we can create our sentences and actions for this sentences.
 # $killer - only for events where there is damager#getName
 # $player - only for events where there is getEntity()#getName
+# {iterate} before command will run iteration for all players in the server, you also can paste some expressions inside.
+#  ($allowed-worlds, $allowed-worlds) will check two condition.
+#  use $target for select need player.
 action:
   # Reward killer when player is died
   - activator:
@@ -40,7 +51,7 @@ action:
       - "$allowed-worlds"
     command:
       - "give $player 322:0 1"
-      - "bc $player is died"
+      - "{iterate($allowed-worlds, $allowed-worlds)} tellraw $target $player is died"
 
   # Anti void
   - activator:

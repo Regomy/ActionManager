@@ -8,7 +8,6 @@ public class ExpressionEquals implements Expression<Object, Object> {
     @Override
     public boolean test(Object object, Object object2) {
         return ExpressionUtil.tryToCompare(object, object2, (objectA, objectB) -> {
-            System.out.println("a == " + objectA + " " + objectB);
             return objectA.equals(objectB);
         });
     }

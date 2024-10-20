@@ -1,7 +1,6 @@
 package me.rejomy.actions.util.condition;
 
 import lombok.experimental.UtilityClass;
-import me.rejomy.actions.ActionsAPI;
 import me.rejomy.actions.hook.PAPIHook;
 import me.rejomy.actions.util.CollectionUtil;
 import me.rejomy.actions.util.ReflectionUtil;
@@ -16,9 +15,13 @@ import java.util.List;
 public class ConditionChecker {
 
     public boolean checkConditions(List<ConditionData> conditions, Event event) {
+        return checkConditions(conditions, event, null);
+    }
+
+    public boolean checkConditions(List<ConditionData> conditions, Event event, Object target) {
         for (ConditionData condition : conditions) {
-            Object firstPart = parse(condition.getFirstPart(), event);
-            Object secondPart = parse(condition.getSecondPart(), event);
+            Object firstPart = parse(condition.getFirstPart(), event, target);
+            Object secondPart = parse(condition.getSecondPart(), event, target);
 
             List<Object> firstPartValues = CollectionUtil.toList(firstPart);
             List<Object> secondPartValue = CollectionUtil.toList(secondPart);
@@ -40,13 +43,13 @@ public class ConditionChecker {
         return true;
     }
 
-    private Object parse(ConditionData.ConditionPart part, Event event) {
+    private Object parse(ConditionData.ConditionPart part, Event event, Object target) {
         Object value = part.getObject();
 
         switch (part.getConditionType()) {
             case INVOKE -> {
                 String path = (String) value;
-                return ReflectionUtil.getObject(path, event, true);
+                return ReflectionUtil.getObject(path, part.isForTarget()? target : event, true);
             }
             case CLASS -> {
                 return ReflectionUtil.getClassByPath((String) value);
