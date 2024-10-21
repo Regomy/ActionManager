@@ -7,6 +7,7 @@ import me.rejomy.actions.util.Logger;
 import me.rejomy.actions.util.condition.ConditionParser;
 import me.rejomy.actions.util.data.ActionData;
 import me.rejomy.actions.util.data.ConditionData;
+import me.rejomy.actions.util.data.EventData;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.Event;
 
@@ -24,7 +25,7 @@ public class Config extends YamlConfig {
      * Used for increase performance, we dont need to check activators in all actions, we just need
      *  fill links to actions by event.
      */
-    HashMap<Class<? extends Event>, List<ActionData>> actionsByEvent = new HashMap<>();
+    HashMap<EventData, List<ActionData>> actionsByEvent = new HashMap<>();
 
     public Config(FileConfiguration config) {
         super(config);
@@ -44,7 +45,7 @@ public class Config extends YamlConfig {
         fillAction();
 
         for (ActionData action : actions) {
-            for (Class<? extends org.bukkit.event.Event> event : action.activators()) {
+            for (EventData event : action.activators()) {
                 actionsByEvent.computeIfAbsent(event, e -> new ArrayList<>()).add(action);
             }
         }

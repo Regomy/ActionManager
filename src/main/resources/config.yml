@@ -42,10 +42,13 @@ condition:
 # {iterate} before command will run iteration for all players in the server, you also can paste some expressions inside.
 #  ($allowed-worlds, $allowed-worlds) will check two condition.
 #  use $target for select need player.
+# activators:
+#  ignoreCancelled - if event was cancelled should we ignore them.
+#  priority - EventPriority, lowest - first, low, normal, high, highest, monitor - last.
 action:
   # Reward killer when player is died
   - activator:
-      - playerdeathevent
+      - playerdeathevent(priority=HIGHEST, ignoreCancelled=true)
     condition:
       - "$is-player"
       - "$allowed-worlds"

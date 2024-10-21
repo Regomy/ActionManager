@@ -1,8 +1,12 @@
 package me.rejomy.actions.listener;
 
 import me.rejomy.actions.ActionsAPI;
+import me.rejomy.actions.util.EventContainer;
 import me.rejomy.actions.util.EventHandler;
+import me.rejomy.actions.util.data.ActionData;
+import me.rejomy.actions.util.data.EventData;
 import org.bukkit.Bukkit;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -11,6 +15,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class DynamicEventListener {
@@ -24,14 +30,8 @@ public class DynamicEventListener {
     }
 
     private void registerAllEvents() {
-        // Initialize Reflections to scan the package containing Bukkit events
-        Reflections reflections = new Reflections("org.bukkit.event");
-
-        // Find all classes that extend Bukkit's Event class
-        Set<Class<? extends Event>> eventClasses = reflections.getSubTypesOf(Event.class);
-
         // Register each event class dynamically
-        for (Class<? extends Event> eventClass : eventClasses) {
+        for (Class<? extends Event> eventClass : EventContainer.ALL_BUKKIT_EVENTS) {
             if (canAddToListener(eventClass)) {
                 registerEventHandler(eventClass);
             }
@@ -40,7 +40,9 @@ public class DynamicEventListener {
 
     private boolean canAddToListener(Class<? extends Event> eventClass) {
         // Dont add events who not used in our action.
-        if (!ActionsAPI.INSTANCE.getConfig().getActionsByEvent().containsKey(eventClass)) {
+        if (ActionsAPI.INSTANCE.getConfig().getActionsByEvent().keySet()
+                .stream()
+                .noneMatch(eventData -> eventData.getEvent() == eventClass)) {
             return false;
         }
 
@@ -56,14 +58,18 @@ public class DynamicEventListener {
     }
 
     private <T extends Event> void registerEventHandler(Class<T> eventClass) {
-        Bukkit.getPluginManager().registerEvent(eventClass, new Listener() {
-        }, EventPriority.NORMAL, new EventExecutor() {
-            @Override
-            public void execute(Listener listener, Event event) {
-                if (eventClass.isInstance(event)) {
-                    EventHandler.handleEvent(eventClass.cast(event));
-                }
+        for (EventData eventData : ActionsAPI.INSTANCE.getConfig().getActionsByEvent().keySet()) {
+            if (eventData.getEvent() != eventClass) {
+                continue;
             }
-        }, plugin);
+
+            Bukkit.getPluginManager().registerEvent(eventClass, new Listener() {
+
+            }, eventData.getPriority(), (listener, event) -> {
+                if (eventClass.isInstance(event)) {
+                    EventHandler.handleEvent(eventClass.cast(event), eventData);
+                }
+            }, plugin, eventData.isIgnoreCancelled());
+        }
     }
 }

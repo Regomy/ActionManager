@@ -6,22 +6,21 @@ import me.rejomy.actions.util.command.Command;
 import me.rejomy.actions.util.condition.ConditionParser;
 import me.rejomy.actions.util.data.ActionData;
 import me.rejomy.actions.util.data.ConditionData;
+import me.rejomy.actions.util.data.EventData;
 import org.bukkit.event.Event;
+import org.bukkit.event.EventPriority;
+import org.reflections.Reflections;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @UtilityClass
 public class ActionFiller {
 
-    final Set<Class<? extends Event>> ALL_BUKKIT_EVENTS = ReflectionUtil
-            .findClasses(Event.class, "org.bukkit.event");
-
     public ActionData newActionFromConfig(List<String> cfgActivator, List<String> condition, List<String> commands) {
         // Parse activator to Event.
-        List<Class<? extends Event>> activators = getEventsFromActivator(cfgActivator);
+        List<EventData> activators = getEventsFromActivator(cfgActivator);
 
         List<ConditionData> conditions = parseConditions(condition);
 
@@ -91,16 +90,42 @@ public class ActionFiller {
         return textCommands.stream().map(Command::new).toList();
     }
 
-    public List<Class<? extends Event>> getEventsFromActivator(List<String> activators) {
-        List<Class<? extends Event>> events = new ArrayList<>();
+    public List<EventData> getEventsFromActivator(List<String> activators) {
+        List<EventData> events = new ArrayList<>();
 
         for (String activator : activators) {
             // Do lower case for activator.
             activator = activator.toLowerCase();
+            String activatorName = activator.replaceAll("\\(.+\\)", "");
+            EventPriority priority = EventPriority.NORMAL;
+            boolean ignoreCancelled = false;
 
-            for (Class<? extends Event> clazz : ALL_BUKKIT_EVENTS) {
-                if (clazz.getSimpleName().toLowerCase().contains(activator)) {
-                    events.add(clazz);
+            String arguments = RegexUtil.findFirst(activator, "\\(([^)]+)\\)");
+
+            if (arguments != null) {
+                String[] args = arguments.split(",? ");
+
+                for (String argument : args) {
+                    if (argument.startsWith("priority=")) {
+                        String priorityName = argument.replace("priority=", "").toUpperCase();
+
+                        try {
+                            priority = EventPriority.valueOf(priorityName);
+                        } catch (Exception exception) {
+                            Logger.error("Cant find priority with name=" + priorityName);
+                        }
+                    } else if (argument.startsWith("ignorecancelled")) {
+                        String cancelledType = argument.replace("ignorecancelled=", "").toLowerCase();
+
+                        // If starts with t that means our type is true.
+                        ignoreCancelled = cancelledType.startsWith("t");
+                    }
+                }
+            }
+
+            for (Class<? extends Event> clazz : EventContainer.ALL_BUKKIT_EVENTS) {
+                if (clazz.getSimpleName().toLowerCase().contains(activatorName)) {
+                    events.add(new EventData(clazz, priority, ignoreCancelled));
                 }
             }
         }
