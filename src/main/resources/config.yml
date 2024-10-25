@@ -45,6 +45,7 @@ condition:
 # activators:
 #  ignoreCancelled - if event was cancelled should we ignore them.
 #  priority - EventPriority, lowest - first, low, normal, high, highest, monitor - last.
+# use [cancelevent] in commands for cancel event.
 action:
   # Reward killer when player is died
   - activator:

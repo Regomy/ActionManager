@@ -7,6 +7,7 @@ import me.rejomy.actions.util.condition.ConditionChecker;
 import me.rejomy.actions.util.data.ConditionData;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 
 import java.util.List;
@@ -14,7 +15,15 @@ import java.util.List;
 @UtilityClass
 public class CommandUtil {
 
-    public void execute(String command, Object... objects) {
+    public void execute(String command, Event event, Object... objects) {
+        if (command.equalsIgnoreCase("[cancelevent]")) {
+            if (event instanceof Cancellable) {
+                ((Cancellable) event).setCancelled(true);
+            }
+
+            return;
+        }
+
         if (objects.length > 1) {
             for (int index = 1; index < objects.length; index+=2) {
                 command = command.replace("$" + objects[index - 1], String.valueOf(objects[index]));
@@ -34,7 +43,6 @@ public class CommandUtil {
 
         for (Command commandObject : commands) {
             String command = commandObject.getCommand();
-            String[] commandParts = command.split(" ");
 
             if (commandObject.isIterate()) {
                 for (Player target : Bukkit.getOnlinePlayers()) {
@@ -52,10 +60,10 @@ public class CommandUtil {
                     }
 
                     if (valid)
-                        execute(command, "target", target.getName(), "player", player, "killer", killer);
+                        execute(command, event, "target", target.getName(), "player", player, "killer", killer);
                 }
             } else {
-                execute(command, "player", player, "killer", killer);
+                execute(command, event, "player", player, "killer", killer);
             }
         }
     }
