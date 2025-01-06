@@ -37,13 +37,6 @@ public class ActionFiller {
             return null;
         }
 
-        if (conditions.isEmpty()) {
-            Logger.error("Conditions for some action is empty.",
-                    "Try to find this action in config, if is this mistake, report to github.",
-                    "Skipping some action...");
-            return null;
-        }
-
         if (commands.isEmpty()) {
             Logger.error("Commands for some action is empty.",
                     "Try to find this action in config, if is this mistake, report to github.",
@@ -62,6 +55,11 @@ public class ActionFiller {
      */
     public List<ConditionData> parseConditions(List<String> cfgConditions) {
         List<ConditionData> conditions = new ArrayList<>();
+
+        // If condition section does not exist, return empty conditions.
+        if (cfgConditions == null) {
+            return conditions;
+        }
 
         for (String condition : cfgConditions) {
             String[] parts = condition.split("\\s");

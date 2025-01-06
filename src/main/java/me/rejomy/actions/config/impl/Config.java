@@ -101,7 +101,7 @@ public class Config extends YamlConfig {
             actionCount++;
 
             List<String> activator = (List<String>) actionMap.get("activator");
-            List<String> cfgCondition = (List<String>) actionMap.get("condition");
+            List<String> cfgCondition = getFromMap("condition", actionMap);
             List<String> command = (List<String>) actionMap.get("command");
 
             ActionData actionData = ActionFiller.newActionFromConfig(activator, cfgCondition, command);
@@ -114,5 +114,16 @@ public class Config extends YamlConfig {
         }
 
         Logger.info(String.format("Actions: loaded %s from %s", actions.size(), actionSection.size()));
+    }
+
+    /**
+     * Return value from map and try cast it, if it does not exist or cast exception return null
+     */
+    <T> T getFromMap(String path, Map<?, ?> map) {
+        try {
+            return (T) map.get(path);
+        } catch (ClassCastException | NullPointerException exception) {
+            return null;
+        }
     }
 }
